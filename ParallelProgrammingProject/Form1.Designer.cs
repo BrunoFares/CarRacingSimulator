@@ -63,7 +63,6 @@
             this.GameTitle.TabIndex = 3;
             this.GameTitle.Text = "Welcome to F1 2026! (Official)";
             this.GameTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.GameTitle.Click += new System.EventHandler(this.label1_Click);
             // 
             // Form1
             // 
