@@ -29,14 +29,17 @@ namespace ParallelProgrammingProject
             }
 
             Button EditButton = new();
+            Button DoneButton = new();
+
             EditButton.Text = "Edit Car";
             EditButton.Location = new Point(0, 20 + cars.Count * 90);
+            EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, DoneButton, EditButton);
             this.Controls.Add(EditButton);
 
-            Button DoneButton = new();
             DoneButton.Text = "Apply Edits";
             DoneButton.Enabled = false;
             DoneButton.Location = new Point(200, 20 + cars.Count * 90);
+            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, DoneButton, EditButton);
             this.Controls.Add(DoneButton);
         }
 
@@ -96,14 +99,16 @@ namespace ParallelProgrammingProject
             this.Controls.Add(lab5);
         }
 
-        private void EditRows(int index)
+        private void EditRows(object sender, EventArgs e, Button doneBtn, Button editBtn)
         {
-
+            editBtn.Enabled = false;
+            doneBtn.Enabled = true;
         }
 
-        private void ApplyEdits(int index)
+        private void ApplyEdits(object sender, EventArgs e, Button doneBtn, Button editBtn)
         {
-
+            editBtn.Enabled = true;
+            doneBtn.Enabled = false;
         }
     }
 }
