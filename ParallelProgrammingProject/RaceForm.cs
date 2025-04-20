@@ -22,10 +22,11 @@ namespace ParallelProgrammingProject
         {
             Race race = new();
 
-            List<Car> cars = race.racers;
+            Dictionary<int, Car> cars = race.racers;
+            Dictionary<int, List<TextBox>> racerValues = new();
 
             for (int i = 0; i < cars.Count; i++) {
-                LoadCar(cars[i], i);
+                racerValues[i+1] = LoadCar(cars[i], i);
             }
 
             Button EditButton = new();
@@ -33,18 +34,19 @@ namespace ParallelProgrammingProject
 
             EditButton.Text = "Edit Car";
             EditButton.Location = new Point(0, 20 + cars.Count * 90);
-            EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, DoneButton, EditButton);
+            EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton);
             this.Controls.Add(EditButton);
 
             DoneButton.Text = "Apply Edits";
             DoneButton.Enabled = false;
             DoneButton.Location = new Point(200, 20 + cars.Count * 90);
-            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, DoneButton, EditButton);
+            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, cars, DoneButton, EditButton);
             this.Controls.Add(DoneButton);
         }
 
-        private void LoadCar(Car car, int index)
+        private List<TextBox> LoadCar(Car car, int index)
         {
+            List<TextBox> textBoxes = new();
             Label tag = new();
             tag.Text = "Contestant " + (index + 1);
             tag.Location = new Point(0, index * 90);
@@ -61,6 +63,7 @@ namespace ParallelProgrammingProject
             lab1.Font = new Font("Default", 14);
             lab1.Padding = new Padding(10, 10, 10, 0);
             this.Controls.Add(lab1);
+            textBoxes.Add(lab1);
 
             TextBox lab2 = new();
             lab2.Text = car.Model;
@@ -70,6 +73,7 @@ namespace ParallelProgrammingProject
             lab2.Font = new Font("Default", 14);
             lab2.Padding = new Padding(10);
             this.Controls.Add(lab2);
+            textBoxes.Add(lab2);
 
             TextBox lab3 = new();
             lab3.Text = car.Year.ToString();
@@ -79,6 +83,7 @@ namespace ParallelProgrammingProject
             lab3.Font = new Font("Default", 9);
             lab3.Padding = new Padding(10, 0, 10, 0);
             this.Controls.Add(lab3);
+            textBoxes.Add(lab3);
 
             TextBox lab4 = new();
             lab4.Text = car.HorsePower.ToString();
@@ -88,6 +93,7 @@ namespace ParallelProgrammingProject
             lab4.Font = new Font("Default", 14);
             lab4.Padding = new Padding(10);
             this.Controls.Add(lab4);
+            textBoxes.Add(lab4);
 
             TextBox lab5 = new();
             lab5.Text = car.Weight.ToString();
@@ -97,16 +103,60 @@ namespace ParallelProgrammingProject
             lab5.Font = new Font("Default", 14);
             lab5.Padding = new Padding(10);
             this.Controls.Add(lab5);
+            textBoxes.Add(lab5);
+
+            return textBoxes;
         }
 
-        private void EditRows(object sender, EventArgs e, Button doneBtn, Button editBtn)
+        private void EditRows(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn)
         {
+            foreach(KeyValuePair<int,List<TextBox>> row in list)
+            {
+                foreach (TextBox tb in row.Value)
+                {
+                    tb.Enabled = true;
+                }
+            }
+            
             editBtn.Enabled = false;
             doneBtn.Enabled = true;
         }
 
-        private void ApplyEdits(object sender, EventArgs e, Button doneBtn, Button editBtn)
+        private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Dictionary<int, Car> racers, Button doneBtn, Button editBtn)
         {
+            foreach (KeyValuePair<int, List<TextBox>> row in list)
+            {
+                foreach (TextBox tb in row.Value)
+                {
+                    tb.Enabled = false;
+                }
+            }
+
+            foreach (KeyValuePair<int, List<TextBox>> row in list)
+            {
+                for (int i = 0; i < row.Value.Count; i++)
+                {
+                    switch(i)
+                    {
+                        case 0:
+                            racers[i].Make = row.Value[i].Text;
+                            break;
+                        case 1:
+                            racers[i].Model = row.Value[i].Text;
+                            break;
+                        case 2:
+                            racers[i].Year = Int32.Parse(row.Value[i].Text);
+                            break;
+                        case 3:
+                            racers[i].HorsePower = Int32.Parse(row.Value[i].Text);
+                            break;
+                        case 4:
+                            racers[i].Weight = Int32.Parse(row.Value[i].Text);
+                            break;
+                    }
+                }
+            }
+
             editBtn.Enabled = true;
             doneBtn.Enabled = false;
         }
