@@ -22,10 +22,6 @@ namespace ParallelProgrammingProject
         {
             Race race = new();
 
-            //for (int i = 0; i < race.racers) {
-            //    MessageBox.Show(car.Value.Make);
-            //}
-
             Dictionary<int, Car> cars = new();
             Dictionary<int, List<TextBox>> racerValues = new();
 
@@ -36,17 +32,26 @@ namespace ParallelProgrammingProject
 
             Button EditButton = new();
             Button DoneButton = new();
+            Button AddCar = new();
 
-            EditButton.Text = "Edit Car";
-            EditButton.Location = new Point(0, 20 + cars.Count * 90);
+            EditButton.Text = "Edit Cars";
+            EditButton.Location = new Point(0, 30 + cars.Count * 90);
             EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton);
+            EditButton.Size = new Size(90,40);
             this.Controls.Add(EditButton);
 
             DoneButton.Text = "Apply Edits";
             DoneButton.Enabled = false;
-            DoneButton.Location = new Point(200, 20 + cars.Count * 90);
+            DoneButton.Location = new Point(200, 30 + cars.Count * 90);
             DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, ref cars, DoneButton, EditButton);
+            DoneButton.Size = new Size(120, 40);
             this.Controls.Add(DoneButton);
+
+            AddCar.Text = "Add Car";
+            AddCar.Location = new Point(400, 30 + cars.Count * 90);
+            AddCar.Click += (sender, EventArgs) => AddNewCar(sender, EventArgs);
+            AddCar.Size = new Size(90, 40);
+            this.Controls.Add(AddCar);
         }
 
         private List<TextBox> LoadCar(Car car, int index)
@@ -58,11 +63,12 @@ namespace ParallelProgrammingProject
             tag.AutoSize = true;
             tag.Font = new Font("Default", 10, FontStyle.Bold);
             tag.Padding = new Padding(10, 10, 10, 0);
+            this.Controls.Add(tag);
 
             TextBox lab1 = new();
             lab1.Text = car.Make;
             lab1.Enabled = false;
-            lab1.Location = new Point(0, 20 + index * 90);
+            lab1.Location = new Point(0, 30 + index * 90);
             lab1.AutoSize = true;
             lab1.Font = new Font("Default", 14);
             lab1.Padding = new Padding(10, 10, 10, 0);
@@ -72,7 +78,7 @@ namespace ParallelProgrammingProject
             TextBox lab2 = new();
             lab2.Text = car.Model;
             lab2.Enabled = false;
-            lab2.Location = new Point(200, 20 + index * 90);
+            lab2.Location = new Point(200, 30 + index * 90);
             lab2.AutoSize = true;
             lab2.Font = new Font("Default", 14);
             lab2.Padding = new Padding(10);
@@ -82,7 +88,7 @@ namespace ParallelProgrammingProject
             TextBox lab3 = new();
             lab3.Text = car.Year.ToString();
             lab3.Enabled = false;
-            lab3.Location = new Point(0, 60 + index * 90);
+            lab3.Location = new Point(0, 70 + index * 90);
             lab3.AutoSize = true;
             lab3.Font = new Font("Default", 9);
             lab3.Padding = new Padding(10, 0, 10, 0);
@@ -92,7 +98,7 @@ namespace ParallelProgrammingProject
             TextBox lab4 = new();
             lab4.Text = car.HorsePower.ToString();
             lab4.Enabled = false;
-            lab4.Location = new Point(400, 20 + index * 90);
+            lab4.Location = new Point(400, 30 + index * 90);
             lab4.AutoSize = true;
             lab4.Font = new Font("Default", 14);
             lab4.Padding = new Padding(10);
@@ -102,7 +108,7 @@ namespace ParallelProgrammingProject
             TextBox lab5 = new();
             lab5.Text = car.Weight.ToString();
             lab5.Enabled = false;
-            lab5.Location = new Point(600, 20 + index * 90);
+            lab5.Location = new Point(600, 30 + index * 90);
             lab5.AutoSize = true;
             lab5.Font = new Font("Default", 14);
             lab5.Padding = new Padding(10);
@@ -128,6 +134,7 @@ namespace ParallelProgrammingProject
 
         private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, ref Dictionary<int, Car> racers, Button doneBtn, Button editBtn)
         {
+            object locker = new();
             foreach (KeyValuePair<int, List<TextBox>> row in list)
             {
                 foreach (TextBox tb in row.Value)
@@ -135,15 +142,24 @@ namespace ParallelProgrammingProject
                     tb.Enabled = false;
                 }
 
-                racers[row.Key].Make = row.Value[0].Text;
-                racers[row.Key].Model = row.Value[1].Text;
-                racers[row.Key].Year = Int32.Parse(row.Value[2].Text);
-                racers[row.Key].HorsePower = Int32.Parse(row.Value[3].Text);
-                racers[row.Key].Weight = Int32.Parse(row.Value[4].Text);
+                lock(locker)
+                {
+                    racers[row.Key].Make = row.Value[0].Text;
+                    racers[row.Key].Model = row.Value[1].Text;
+                    racers[row.Key].Year = Int32.Parse(row.Value[2].Text);
+                    racers[row.Key].HorsePower = Int32.Parse(row.Value[3].Text);
+                    racers[row.Key].Weight = Int32.Parse(row.Value[4].Text);
+                }
             }
 
             editBtn.Enabled = true;
             doneBtn.Enabled = false;
+        }
+
+        private void AddNewCar(object sender, EventArgs e)
+        {
+            NewCarForm newform = new();
+            newform.Show();
         }
     }
 }
