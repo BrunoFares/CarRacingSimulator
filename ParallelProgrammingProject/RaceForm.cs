@@ -13,45 +13,63 @@ namespace ParallelProgrammingProject
 {
     public partial class RaceForm : Form
     {
+        Race race;
+        Dictionary<int, List<TextBox>> racerValues;
+        Panel contentPanel;
+
         public RaceForm()
         {
             InitializeComponent();
+            racerValues = new();
+            race = new();
         }
 
         private void Race_Load(object sender, EventArgs e)
         {
-            Race race = new();
+            contentPanel = new();
+            contentPanel.Dock = DockStyle.Fill;
+            contentPanel.AutoScroll = true;
+            this.Controls.Add(contentPanel);
 
-            Dictionary<int, Car> cars = new();
-            Dictionary<int, List<TextBox>> racerValues = new();
-
-            foreach (KeyValuePair<int, Car> car in race.racers) {
-                cars[car.Key] = race.racers[car.Key];
-                racerValues[car.Key] = LoadCar(cars[car.Key], car.Key);
-            }
+            Panel bottomPanel = new Panel();
+            bottomPanel.Dock = DockStyle.Bottom;
+            bottomPanel.Height = 50;
+            this.Controls.Add(bottomPanel);
 
             Button EditButton = new();
             Button DoneButton = new();
             Button AddCar = new();
 
-            EditButton.Text = "Edit Cars";
-            EditButton.Location = new Point(0, 30 + cars.Count * 90);
+            EditButton = LoadButton("Edit Cars", new Point(10, 10), new Size(90, 40), true);
+            bottomPanel.Controls.Add(EditButton);
             EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton);
-            EditButton.Size = new Size(90,40);
-            this.Controls.Add(EditButton);
 
-            DoneButton.Text = "Apply Edits";
-            DoneButton.Enabled = false;
-            DoneButton.Location = new Point(200, 30 + cars.Count * 90);
-            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, ref cars, DoneButton, EditButton);
-            DoneButton.Size = new Size(120, 40);
-            this.Controls.Add(DoneButton);
+            DoneButton = LoadButton("Apply Edits", new Point(110, 10), new Size(120, 40), false);
+            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, ref race.racers, DoneButton, EditButton);
+            bottomPanel.Controls.Add(DoneButton);
 
-            AddCar.Text = "Add Car";
-            AddCar.Location = new Point(400, 30 + cars.Count * 90);
+            AddCar = LoadButton("Add Car", new Point(250, 10), new Size(90, 40), true);
             AddCar.Click += (sender, EventArgs) => AddNewCar(sender, EventArgs);
-            AddCar.Size = new Size(90, 40);
-            this.Controls.Add(AddCar);
+            bottomPanel.Controls.Add(AddCar);
+
+            foreach (KeyValuePair<int, Car> car in race.racers)
+            {
+                racerValues[car.Key] = LoadCar(race.racers[car.Key], car.Key);
+            }
+        }
+
+        private Button LoadButton(string btnText, Point location, Size size, bool enabled)
+        {
+            Button NewButton = new();
+
+            NewButton.Text = btnText;
+            NewButton.Size = size;
+            NewButton.Margin = new Padding(50, 0, 50, 0);
+            NewButton.Enabled = enabled;
+            NewButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            NewButton.Location = location;
+
+            return NewButton;
         }
 
         private List<TextBox> LoadCar(Car car, int index)
@@ -63,7 +81,7 @@ namespace ParallelProgrammingProject
             tag.AutoSize = true;
             tag.Font = new Font("Default", 10, FontStyle.Bold);
             tag.Padding = new Padding(10, 10, 10, 0);
-            this.Controls.Add(tag);
+            contentPanel.Controls.Add(tag);
 
             TextBox lab1 = new();
             lab1.Text = car.Make;
@@ -72,7 +90,7 @@ namespace ParallelProgrammingProject
             lab1.AutoSize = true;
             lab1.Font = new Font("Default", 14);
             lab1.Padding = new Padding(10, 10, 10, 0);
-            this.Controls.Add(lab1);
+            contentPanel.Controls.Add(lab1);
             textBoxes.Add(lab1);
 
             TextBox lab2 = new();
@@ -82,7 +100,7 @@ namespace ParallelProgrammingProject
             lab2.AutoSize = true;
             lab2.Font = new Font("Default", 14);
             lab2.Padding = new Padding(10);
-            this.Controls.Add(lab2);
+            contentPanel.Controls.Add(lab2);
             textBoxes.Add(lab2);
 
             TextBox lab3 = new();
@@ -92,7 +110,7 @@ namespace ParallelProgrammingProject
             lab3.AutoSize = true;
             lab3.Font = new Font("Default", 9);
             lab3.Padding = new Padding(10, 0, 10, 0);
-            this.Controls.Add(lab3);
+            contentPanel.Controls.Add(lab3);
             textBoxes.Add(lab3);
 
             TextBox lab4 = new();
@@ -102,7 +120,7 @@ namespace ParallelProgrammingProject
             lab4.AutoSize = true;
             lab4.Font = new Font("Default", 14);
             lab4.Padding = new Padding(10);
-            this.Controls.Add(lab4);
+            contentPanel.Controls.Add(lab4);
             textBoxes.Add(lab4);
 
             TextBox lab5 = new();
@@ -112,7 +130,7 @@ namespace ParallelProgrammingProject
             lab5.AutoSize = true;
             lab5.Font = new Font("Default", 14);
             lab5.Padding = new Padding(10);
-            this.Controls.Add(lab5);
+            contentPanel.Controls.Add(lab5);
             textBoxes.Add(lab5);
 
             return textBoxes;
@@ -159,7 +177,14 @@ namespace ParallelProgrammingProject
         private void AddNewCar(object sender, EventArgs e)
         {
             NewCarForm newform = new();
-            newform.Show();
+
+            if (newform.ShowDialog() == DialogResult.OK)
+            {
+                Car car = newform.car;
+                int carIndex = race.racers.Count;
+                race.racers[carIndex] = car;
+                racerValues[carIndex] = LoadCar(car, carIndex);
+            }
         }
     }
 }

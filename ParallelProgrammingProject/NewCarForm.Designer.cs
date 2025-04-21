@@ -49,6 +49,7 @@
             this.NewCarButton.TabIndex = 0;
             this.NewCarButton.Text = "Add Car";
             this.NewCarButton.UseVisualStyleBackColor = true;
+            this.NewCarButton.Click += new System.EventHandler(this.NewCarButton_Click);
             // 
             // CarMake
             // 
