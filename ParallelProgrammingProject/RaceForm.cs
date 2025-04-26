@@ -133,6 +133,11 @@ namespace ParallelProgrammingProject
             contentPanel.Controls.Add(lab5);
             textBoxes.Add(lab5);
 
+            Button RemoveCarBtn = new();
+            RemoveCarBtn = LoadButton("Remove Car", new Point(800, 30 + index * 90), new Size(90, 30), true);
+            RemoveCarBtn.Click += (sender, EventArgs) => RemoveCar(sender, EventArgs, index);
+            contentPanel.Controls.Add(RemoveCarBtn);
+
             return textBoxes;
         }
 
@@ -184,7 +189,57 @@ namespace ParallelProgrammingProject
                 int carIndex = race.racers.Count;
                 race.racers[carIndex] = car;
                 racerValues[carIndex] = LoadCar(car, carIndex);
+
+                RefreshCarDisplay();
             }
         }
+
+        private void RemoveCar(object sender, EventArgs e, int index)
+        {
+            RemoveCarForm newform = new();
+
+            if (newform.ShowDialog() == DialogResult.OK)
+            {
+                race.racers.Remove(index);
+                racerValues.Remove(index);
+
+                Dictionary<int, Car> newRacers = new();
+                Dictionary<int, List<TextBox>> newRacerValues = new();
+
+                int newIndex = 0;
+                foreach (var pair in race.racers.OrderBy(kv => kv.Key))
+                {
+                    newRacers[newIndex] = pair.Value;
+                    newRacerValues[newIndex] = racerValues.ContainsKey(pair.Key) ? racerValues[pair.Key] : new List<TextBox>();
+                    newIndex++;
+                }
+
+                race.racers = newRacers;
+                racerValues = newRacerValues;
+
+                contentPanel.Controls.Clear();
+
+                foreach (KeyValuePair<int, Car> car in race.racers)
+                {
+                    racerValues[car.Key] = LoadCar(car.Value, car.Key);
+                }
+            }
+        }
+
+
+        private void RefreshCarDisplay()
+        {
+            contentPanel.Controls.Clear();
+            racerValues.Clear();
+
+            int currentIndex = 0;
+
+            foreach (var car in race.racers.Values)
+            {
+                racerValues[currentIndex] = LoadCar(car, currentIndex);
+                currentIndex++;
+            }
+        }
+
     }
 }
