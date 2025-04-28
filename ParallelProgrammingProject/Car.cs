@@ -9,11 +9,32 @@ namespace ParallelProgrammingProject
 {
     internal class Car
     {
-        internal string Make;
-        internal string Model;
-        internal int Year;
-        internal int HorsePower;
-        internal int Weight;
+        private readonly object locker = new();
+        private int _progress;
+        private int _raceTime;
+        private bool _isRacing;
+
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+        public int HorsePower { get; set; }
+        public int Weight { get; set; }
+        public int Progress 
+        {
+            get { lock (locker) return _progress; }
+            set { lock (locker) _progress = value; }
+        }
+        public int RaceTime 
+        {
+            get { lock (locker) return _raceTime; }
+            set { lock (locker) _raceTime = value; }
+        }
+        public bool IsRacing
+        {
+            get { lock (locker) return _isRacing; }
+            set { lock (locker) _isRacing = value; }
+        }
+        public double Speed => (double)HorsePower / Weight;
 
         internal Car()
         {
@@ -31,6 +52,33 @@ namespace ParallelProgrammingProject
             Year = year;
             HorsePower = hp;
             Weight = w;
+        }
+
+        public void RunRace(int raceLength, Action progressUpdate)
+        {
+            lock (locker)
+            {
+                _isRacing = true;
+            }
+            var random = new Random();
+            while (Progress < raceLength && IsRacing)
+            {
+                int delay = (int)(100 / Speed) + random.Next(1, 20);
+                Thread.Sleep(delay);
+
+                lock (locker)
+                {
+                    _progress++;
+                    _raceTime += delay;
+                }
+
+                progressUpdate.Invoke();
+            }
+
+            lock (locker)
+            {
+                _isRacing = false;
+            }
         }
     }
 }
