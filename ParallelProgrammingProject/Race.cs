@@ -7,6 +7,7 @@ namespace ParallelProgrammingProject
     {
         internal Dictionary<int, Car> Racers { get; } = new();
 
+        // Default cars with default attributes
         internal Race()
         {
             Racers[0] = new Car("Toyota", "Yaris", 2009, 100, 1000);
