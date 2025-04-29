@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace ParallelProgrammingProject
 {
-    public partial class RaceForm : Form
+    public partial class RaceForm : Form, IButtonInitialiser
     {
         Race race;
         Dictionary<int, List<TextBox>> racerValues;
@@ -44,6 +44,7 @@ namespace ParallelProgrammingProject
             Button EditButton = new();
             Button DoneButton = new();
             Button AddCar = new();
+            Button StartRaceBtn = new();
 
             EditButton = LoadButton("Edit Cars", new Point(10, 10), new Size(90, 40), true);
             bottomPanel.Controls.Add(EditButton);
@@ -56,9 +57,13 @@ namespace ParallelProgrammingProject
             AddCar = LoadButton("Add Car", new Point(250, 10), new Size(90, 40), true);
             AddCar.Click += (sender, EventArgs) => AddNewCar(sender, EventArgs);
             bottomPanel.Controls.Add(AddCar);
+
+            StartRaceBtn = LoadButton("Start Race", new Point(800, 10), new Size(90, 40), true);
+            StartRaceBtn.Click += (sender, EventArgs) => StartRace(sender, EventArgs);
+            bottomPanel.Controls.Add(StartRaceBtn);
         }
 
-        private Button LoadButton(string btnText, Point location, Size size, bool enabled)
+        public Button LoadButton(string btnText, Point location, Size size, bool enabled)
         {
             Button NewButton = new();
 
@@ -241,5 +246,10 @@ namespace ParallelProgrammingProject
             }
         }
 
+        private void StartRace(object sender, EventArgs e)
+        {
+            NewRaceForm newform = new(race);
+            newform.Show();
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ParallelProgrammingProject
 {
-    internal class Race
+    public class Race
     {
         internal Dictionary<int, Car> Racers { get; set; } = new();
 

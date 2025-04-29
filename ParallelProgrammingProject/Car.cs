@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParallelProgrammingProject
 {
-    internal class Car
+    public class Car
     {
         private readonly object locker = new();
         private int _progress;
