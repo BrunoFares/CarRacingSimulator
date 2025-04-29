@@ -5,7 +5,7 @@ namespace ParallelProgrammingProject
 {
     internal class Race
     {
-        internal Dictionary<int, Car> Racers { get; } = new();
+        internal Dictionary<int, Car> Racers { get; set; } = new();
 
         // Default cars with default attributes
         internal Race()

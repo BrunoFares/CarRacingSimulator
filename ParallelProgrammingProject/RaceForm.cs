@@ -31,6 +31,11 @@ namespace ParallelProgrammingProject
             contentPanel.AutoScroll = true;
             this.Controls.Add(contentPanel);
 
+            foreach (KeyValuePair<int, Car> car in race.Racers)
+            {
+                racerValues[car.Key] = LoadCar(race.Racers[car.Key], car.Key);
+            }
+
             Panel bottomPanel = new Panel();
             bottomPanel.Dock = DockStyle.Bottom;
             bottomPanel.Height = 50;
@@ -45,17 +50,12 @@ namespace ParallelProgrammingProject
             EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton);
 
             DoneButton = LoadButton("Apply Edits", new Point(110, 10), new Size(120, 40), false);
-            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, ref race.racers, DoneButton, EditButton);
+            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, DoneButton, EditButton);
             bottomPanel.Controls.Add(DoneButton);
 
             AddCar = LoadButton("Add Car", new Point(250, 10), new Size(90, 40), true);
             AddCar.Click += (sender, EventArgs) => AddNewCar(sender, EventArgs);
             bottomPanel.Controls.Add(AddCar);
-
-            foreach (KeyValuePair<int, Car> car in race.racers)
-            {
-                racerValues[car.Key] = LoadCar(race.racers[car.Key], car.Key);
-            }
         }
 
         private Button LoadButton(string btnText, Point location, Size size, bool enabled)
@@ -155,9 +155,8 @@ namespace ParallelProgrammingProject
             doneBtn.Enabled = true;
         }
 
-        private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, ref Dictionary<int, Car> racers, Button doneBtn, Button editBtn)
+        private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn)
         {
-            object locker = new();
             foreach (KeyValuePair<int, List<TextBox>> row in list)
             {
                 foreach (TextBox tb in row.Value)
@@ -165,19 +164,20 @@ namespace ParallelProgrammingProject
                     tb.Enabled = false;
                 }
 
-                lock(locker)
+                if (race.Racers.TryGetValue(row.Key, out Car car))
                 {
-                    racers[row.Key].Make = row.Value[0].Text;
-                    racers[row.Key].Model = row.Value[1].Text;
-                    racers[row.Key].Year = Int32.Parse(row.Value[2].Text);
-                    racers[row.Key].HorsePower = Int32.Parse(row.Value[3].Text);
-                    racers[row.Key].Weight = Int32.Parse(row.Value[4].Text);
+                    car.Make = row.Value[0].Text;
+                    car.Model = row.Value[1].Text;
+                    car.Year = int.Parse(row.Value[2].Text);
+                    car.HorsePower = int.Parse(row.Value[3].Text);
+                    car.Weight = int.Parse(row.Value[4].Text);
                 }
             }
 
             editBtn.Enabled = true;
             doneBtn.Enabled = false;
         }
+
 
         private void AddNewCar(object sender, EventArgs e)
         {
@@ -186,8 +186,8 @@ namespace ParallelProgrammingProject
             if (newform.ShowDialog() == DialogResult.OK)
             {
                 Car car = newform.car;
-                int carIndex = race.racers.Count;
-                race.racers[carIndex] = car;
+                int carIndex = race.Racers.Count;
+                race.Racers[carIndex] = car;
                 racerValues[carIndex] = LoadCar(car, carIndex);
 
                 RefreshCarDisplay();
@@ -200,26 +200,26 @@ namespace ParallelProgrammingProject
 
             if (newform.ShowDialog() == DialogResult.OK)
             {
-                race.racers.Remove(index);
+                race.Racers.Remove(index);
                 racerValues.Remove(index);
 
                 Dictionary<int, Car> newRacers = new();
                 Dictionary<int, List<TextBox>> newRacerValues = new();
 
                 int newIndex = 0;
-                foreach (var pair in race.racers.OrderBy(kv => kv.Key))
+                foreach (var pair in race.Racers.OrderBy(kv => kv.Key))
                 {
                     newRacers[newIndex] = pair.Value;
                     newRacerValues[newIndex] = racerValues.ContainsKey(pair.Key) ? racerValues[pair.Key] : new List<TextBox>();
                     newIndex++;
                 }
 
-                race.racers = newRacers;
+                race.Racers = newRacers;
                 racerValues = newRacerValues;
 
                 contentPanel.Controls.Clear();
 
-                foreach (KeyValuePair<int, Car> car in race.racers)
+                foreach (KeyValuePair<int, Car> car in race.Racers)
                 {
                     racerValues[car.Key] = LoadCar(car.Value, car.Key);
                 }
@@ -234,7 +234,7 @@ namespace ParallelProgrammingProject
 
             int currentIndex = 0;
 
-            foreach (var car in race.racers.Values)
+            foreach (var car in race.Racers.Values)
             {
                 racerValues[currentIndex] = LoadCar(car, currentIndex);
                 currentIndex++;
