@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace ParallelProgrammingProject
         public int Year { get; set; }
         public int HorsePower { get; set; }
         public int Weight { get; set; }
+        public bool InPitStop { get; set; }
         public int Progress 
         {
             get { lock (locker) return _progress; }
@@ -61,8 +63,14 @@ namespace ParallelProgrammingProject
                 _isRacing = true;
             }
             var random = new Random();
-            while (Progress < raceLength && IsRacing)
+            while (Progress < raceLength)
             {
+                if (!IsRacing)
+                {
+                    Thread.Sleep(100);
+                    continue;
+                }
+
                 int delay = (int)(100 / Speed) + random.Next(1, 20);
                 Thread.Sleep(delay);
 
@@ -78,6 +86,32 @@ namespace ParallelProgrammingProject
             lock (locker)
             {
                 _isRacing = false;
+            }
+        }
+
+        public void EnterPitStop(int hpAdjustment, int weightAdjustment)
+        {
+            lock (locker)
+            {
+                InPitStop = true;
+                IsRacing = false;
+                var newHorsePower = HorsePower + hpAdjustment;
+                var newWeight = Weight + weightAdjustment;
+
+                if (newHorsePower > 0 && newWeight > 0)
+                {
+                    HorsePower = newHorsePower;
+                    Weight = newWeight;
+                }
+            }
+        }
+
+        public void ExitPitStop()
+        {
+            lock (locker)
+            {
+                InPitStop = false;
+                IsRacing = true;
             }
         }
     }

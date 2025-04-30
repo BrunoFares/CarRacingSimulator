@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ParallelProgrammingProject
 {
-    public partial class NewRaceForm : Form, IButtonInitialiser
+    public partial class NewRaceForm : Form
     {
-        Panel contentPanel;
-        Race race;
-        private Dictionary<Car, ProgressBar> carProgressBars = new();
+        private readonly Race race;
+        private readonly Dictionary<Car, (ProgressBar Bar, Panel Panel, Label SpeedLabel)> carUis = new();
+        private const int DefaultHpChange = 10;
+        private const int DefaultWeightChange = 50;
 
         public NewRaceForm(Race race)
         {
@@ -24,93 +21,134 @@ namespace ParallelProgrammingProject
 
         private void NewRaceForm_Load(object sender, EventArgs e)
         {
-            Panel bottomPanel = new Panel();
-            bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Height = 50;
-            this.Controls.Add(bottomPanel);
-
-            Button PitstopBtn = new();
-            Button StartRaceBtn = new();
-
-            PitstopBtn = LoadButton("Edit Cars", new Point(10, 10), new Size(90, 40), true);
-            bottomPanel.Controls.Add(PitstopBtn);
-            PitstopBtn.Click += (sender, EventArgs) => PitStop(sender, EventArgs);
-
-            StartRaceBtn = LoadButton("Edit Cars", new Point(100, 10), new Size(90, 40), true);
-            bottomPanel.Controls.Add(StartRaceBtn);
-            StartRaceBtn.Click += (sender, EventArgs) => StartRace();
-
-            contentPanel = new FlowLayoutPanel();
-            contentPanel.Dock = DockStyle.Fill;
-            contentPanel.AutoScroll = true;
-            this.Controls.Add(contentPanel);
-
-            foreach (Car car in race.Racers.Values)
+            var contentPanel = new FlowLayoutPanel
             {
-                Label carLabel = new Label();
-                carLabel.Text = $"{car.Make} {car.Model} ({car.Year})";
-                carLabel.AutoSize = true;
-
-                ProgressBar pb = new ProgressBar();
-                pb.Width = 300;
-                pb.Minimum = 0;
-                pb.Maximum = 100;
-                pb.Value = 0;
-
-                carProgressBars[car] = pb;
-
-                Panel carPanel = new Panel();
-                carPanel.Width = 320;
-                carPanel.Height = 50;
-                carPanel.Controls.Add(carLabel);
-                carLabel.Location = new Point(0, 0);
-                carPanel.Controls.Add(pb);
-                pb.Location = new Point(0, 20);
-
-                contentPanel.Controls.Add(carPanel);
-            }
-        }
-
-        public Button LoadButton(string btnText, Point location, Size size, bool enabled)
-        {
-            Button NewButton = new();
-
-            NewButton.Text = btnText;
-            NewButton.Size = size;
-            NewButton.Margin = new Padding(50, 0, 50, 0);
-            NewButton.Enabled = enabled;
-            NewButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            NewButton.Location = location;
-
-            return NewButton;
-        }
-
-        void PitStop(object sender, EventArgs e) { }
-
-        private void StartRace()
-        {
-            int raceLength = 100;
-            List<Thread> threads = new();
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                Padding = new Padding(10)
+            };
+            Controls.Add(contentPanel);
 
             foreach (var car in race.Racers.Values)
             {
-                Thread t = new Thread(() =>
+                var panel = new Panel
+                {
+                    Width = 500,
+                    Height = 80,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    Margin = new Padding(5)
+                };
+
+                var lbl = new Label
+                {
+                    Text = $"{car.Make} {car.Model} ({car.Year})",
+                    Location = new Point(5, 5),
+                    AutoSize = true
+                };
+
+                var speedLbl = new Label
+                {
+                    Text = $"Speed: {car.Speed:F2}",
+                    Location = new Point(5, 25),
+                    AutoSize = true
+                };
+
+                var pb = new ProgressBar
+                {
+                    Width = 200,
+                    Height = 20,
+                    Location = new Point(5, 45),
+                    Maximum = 100
+                };
+
+                var btnFaster = new Button
+                {
+                    Text = "Faster (+10HP/-50kg)",
+                    Size = new Size(120, 30),
+                    Location = new Point(210, 45),
+                    Tag = car,
+                    BackColor = Color.LightGreen
+                };
+                btnFaster.Click += MakeCarFaster;
+
+                var btnSlower = new Button
+                {
+                    Text = "Slower (-10HP/+50kg)",
+                    Size = new Size(120, 30),
+                    Location = new Point(340, 45),
+                    Tag = car,
+                    BackColor = Color.LightCoral
+                };
+                btnSlower.Click += MakeCarSlower;
+
+                panel.Controls.AddRange(new Control[] { lbl, speedLbl, pb, btnFaster, btnSlower });
+                contentPanel.Controls.Add(panel);
+                carUis[car] = (pb, panel, speedLbl);
+            }
+
+            var btnStart = new Button
+            {
+                Text = "Start Race",
+                Dock = DockStyle.Bottom,
+                Height = 40
+            };
+            btnStart.Click += StartRace;
+            Controls.Add(btnStart);
+        }
+
+        private void MakeCarFaster(object sender, EventArgs e)
+        {
+            var btn = (Button)sender;
+            var car = (Car)btn.Tag;
+
+            car.EnterPitStop(DefaultHpChange, -DefaultWeightChange);
+            UpdateCarDisplay(car);
+            Task.Delay(2000).ContinueWith(_ =>
+            {
+                car.ExitPitStop();
+                this.Invoke((MethodInvoker)(() => UpdateCarDisplay(car)));
+            });
+        }
+
+        private void MakeCarSlower(object sender, EventArgs e)
+        {
+            var btn = (Button)sender;
+            var car = (Car)btn.Tag;
+
+            car.EnterPitStop(-DefaultHpChange, DefaultWeightChange);
+            UpdateCarDisplay(car);
+            Task.Delay(2000).ContinueWith(_ =>
+            {
+                car.ExitPitStop();
+                this.Invoke((MethodInvoker)(() => UpdateCarDisplay(car)));
+            });
+        }
+
+        private void UpdateCarDisplay(Car car)
+        {
+            if (carUis.TryGetValue(car, out var ui))
+            {
+                ui.Panel.BackColor = car.InPitStop ? Color.LightYellow : SystemColors.Control;
+                ui.SpeedLabel.Text = $"Speed: {car.Speed:F2} (HP: {car.HorsePower}, Weight: {car.Weight})";
+                ui.Bar.Value = Math.Min(car.Progress, ui.Bar.Maximum);
+            }
+        }
+
+        private void StartRace(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            int raceLength = 100;
+
+            foreach (var car in race.Racers.Values)
+            {
+                new Thread(() =>
                 {
                     car.RunRace(raceLength, () =>
                     {
-                        this.Invoke((MethodInvoker)(() =>
-                        {
-                            if (carProgressBars.TryGetValue(car, out ProgressBar pb))
-                            {
-                                pb.Value = Math.Min(car.Progress, pb.Maximum);
-                            }
-                        }));
+                        this.Invoke((MethodInvoker)(() => UpdateCarDisplay(car)));
                     });
-                });
-
-                t.IsBackground = true;
-                threads.Add(t);
-                t.Start();
+                })
+                { IsBackground = true }.Start();
             }
         }
     }

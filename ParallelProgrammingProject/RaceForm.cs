@@ -48,10 +48,10 @@ namespace ParallelProgrammingProject
 
             EditButton = LoadButton("Edit Cars", new Point(10, 10), new Size(90, 40), true);
             bottomPanel.Controls.Add(EditButton);
-            EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton);
+            EditButton.Click += (sender, EventArgs) => EditRows(sender, EventArgs, racerValues, DoneButton, EditButton, AddCar);
 
             DoneButton = LoadButton("Apply Edits", new Point(110, 10), new Size(120, 40), false);
-            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, DoneButton, EditButton);
+            DoneButton.Click += (sender, EventArgs) => ApplyEdits(sender, EventArgs, racerValues, DoneButton, EditButton, AddCar);
             bottomPanel.Controls.Add(DoneButton);
 
             AddCar = LoadButton("Add Car", new Point(250, 10), new Size(90, 40), true);
@@ -80,73 +80,123 @@ namespace ParallelProgrammingProject
         private List<TextBox> LoadCar(Car car, int index)
         {
             List<TextBox> textBoxes = new();
-            Label tag = new();
-            tag.Text = "Contestant " + (index + 1);
-            tag.Location = new Point(0, index * 90);
-            tag.AutoSize = true;
-            tag.Font = new Font("Default", 10, FontStyle.Bold);
-            tag.Padding = new Padding(10, 10, 10, 0);
+            Label tag = new Label
+            {
+                Text = "Contestant " + (index + 1),
+                Location = new Point(0, index * 110),
+                AutoSize = true,
+                Font = new Font("Default", 10, FontStyle.Bold),
+                Padding = new Padding(10, 10, 10, 0)
+            };
             contentPanel.Controls.Add(tag);
 
-            TextBox lab1 = new();
-            lab1.Text = car.Make;
-            lab1.Enabled = false;
-            lab1.Location = new Point(0, 30 + index * 90);
-            lab1.AutoSize = true;
-            lab1.Font = new Font("Default", 14);
-            lab1.Padding = new Padding(10, 10, 10, 0);
+            Label makeLabel = new Label
+            {
+                Text = "Make:",
+                Location = new Point(0, index * 110 + 30),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(makeLabel);
+            TextBox lab1 = new TextBox
+            {
+                Text = car.Make,
+                Enabled = false,
+                Location = new Point(60, index * 110 + 30),
+                Width = 120
+            };
             contentPanel.Controls.Add(lab1);
             textBoxes.Add(lab1);
 
-            TextBox lab2 = new();
-            lab2.Text = car.Model;
-            lab2.Enabled = false;
-            lab2.Location = new Point(200, 30 + index * 90);
-            lab2.AutoSize = true;
-            lab2.Font = new Font("Default", 14);
-            lab2.Padding = new Padding(10);
+            Label modelLabel = new Label
+            {
+                Text = "Model:",
+                Location = new Point(210, index * 110 + 30),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(modelLabel);
+            TextBox lab2 = new TextBox
+            {
+                Text = car.Model,
+                Enabled = false,
+                Location = new Point(280, index * 110 + 30),
+                Width = 120
+            };
             contentPanel.Controls.Add(lab2);
             textBoxes.Add(lab2);
 
-            TextBox lab3 = new();
-            lab3.Text = car.Year.ToString();
-            lab3.Enabled = false;
-            lab3.Location = new Point(0, 70 + index * 90);
-            lab3.AutoSize = true;
-            lab3.Font = new Font("Default", 9);
-            lab3.Padding = new Padding(10, 0, 10, 0);
+            Label yearLabel = new Label
+            {
+                Text = "Year:",
+                Location = new Point(0, index * 110 + 60),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(yearLabel);
+            TextBox lab3 = new TextBox
+            {
+                Text = car.Year.ToString(),
+                Enabled = false,
+                Location = new Point(60, index * 110 + 60),
+                Width = 60
+            };
             contentPanel.Controls.Add(lab3);
             textBoxes.Add(lab3);
 
-            TextBox lab4 = new();
-            lab4.Text = car.HorsePower.ToString();
-            lab4.Enabled = false;
-            lab4.Location = new Point(400, 30 + index * 90);
-            lab4.AutoSize = true;
-            lab4.Font = new Font("Default", 14);
-            lab4.Padding = new Padding(10);
+            Label hpLabel = new Label
+            {
+                Text = "HP:",
+                Location = new Point(150, index * 110 + 60),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(hpLabel);
+            TextBox lab4 = new TextBox
+            {
+                Text = car.HorsePower.ToString(),
+                Enabled = false,
+                Location = new Point(190, index * 110 + 60),
+                Width = 60
+            };
             contentPanel.Controls.Add(lab4);
             textBoxes.Add(lab4);
 
-            TextBox lab5 = new();
-            lab5.Text = car.Weight.ToString();
-            lab5.Enabled = false;
-            lab5.Location = new Point(600, 30 + index * 90);
-            lab5.AutoSize = true;
-            lab5.Font = new Font("Default", 14);
-            lab5.Padding = new Padding(10);
+            Label weightLabel = new Label
+            {
+                Text = "Weight:",
+                Location = new Point(260, index * 110 + 60),
+                AutoSize = true
+            };
+            contentPanel.Controls.Add(weightLabel);
+            TextBox lab5 = new TextBox
+            {
+                Text = car.Weight.ToString(),
+                Enabled = false,
+                Location = new Point(330, index * 110 + 60),
+                Width = 60
+            };
             contentPanel.Controls.Add(lab5);
             textBoxes.Add(lab5);
 
-            Button RemoveCarBtn = new();
-            RemoveCarBtn = LoadButton("Remove Car", new Point(800, 30 + index * 90), new Size(90, 30), true);
-            RemoveCarBtn.Click += (sender, EventArgs) => RemoveCar(sender, EventArgs, index);
+            Label speedLabel = new Label
+            {
+                Text = $"Speed: {car.Speed:F2}",
+                Location = new Point(400, index * 110 + 30),
+                AutoSize = true,
+                Font = new Font("Default", 10, FontStyle.Bold)
+            };
+            contentPanel.Controls.Add(speedLabel);
+
+            Button RemoveCarBtn = new Button
+            {
+                Text = "Remove Car",
+                Location = new Point(500, index * 110 + 55),
+                Size = new Size(90, 30)
+            };
+            RemoveCarBtn.Click += (sender, e) => RemoveCar(sender, e, index);
             contentPanel.Controls.Add(RemoveCarBtn);
 
             return textBoxes;
         }
 
-        private void EditRows(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn)
+        private void EditRows(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn, Button addBtn)
         {
             foreach(KeyValuePair<int,List<TextBox>> row in list)
             {
@@ -157,10 +207,11 @@ namespace ParallelProgrammingProject
             }
             
             editBtn.Enabled = false;
+            addBtn.Enabled = false;
             doneBtn.Enabled = true;
         }
 
-        private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn)
+        private void ApplyEdits(object sender, EventArgs e, Dictionary<int, List<TextBox>> list, Button doneBtn, Button editBtn, Button addBtn)
         {
             foreach (KeyValuePair<int, List<TextBox>> row in list)
             {
@@ -179,10 +230,12 @@ namespace ParallelProgrammingProject
                 }
             }
 
+            RefreshCarDisplay();
+
             editBtn.Enabled = true;
+            addBtn.Enabled = true;
             doneBtn.Enabled = false;
         }
-
 
         private void AddNewCar(object sender, EventArgs e)
         {
