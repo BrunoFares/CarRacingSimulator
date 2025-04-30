@@ -17,11 +17,11 @@ namespace ParallelProgrammingProject
         Dictionary<int, List<TextBox>> racerValues;
         Panel contentPanel;
 
-        public RaceForm()
+        public RaceForm(Race existingRace)
         {
             InitializeComponent();
             racerValues = new();
-            race = new();
+            race = existingRace;
         }
 
         private void Race_Load(object sender, EventArgs e)
@@ -227,6 +227,8 @@ namespace ParallelProgrammingProject
                     car.Year = int.Parse(row.Value[2].Text);
                     car.HorsePower = int.Parse(row.Value[3].Text);
                     car.Weight = int.Parse(row.Value[4].Text);
+                    car.OriginalHorsePower = car.HorsePower;
+                    car.OriginalWeight = car.Weight;
                 }
             }
 
@@ -303,6 +305,7 @@ namespace ParallelProgrammingProject
         {
             NewRaceForm newform = new(race);
             newform.Show();
+            this.Close();
         }
     }
 }

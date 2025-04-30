@@ -94,6 +94,15 @@ namespace ParallelProgrammingProject
             };
             btnStart.Click += StartRace;
             Controls.Add(btnStart);
+
+            var btnRestart = new Button
+            {
+                Text = "Restart Race",
+                Dock = DockStyle.Bottom,
+                Height = 40
+            };
+            btnRestart.Click += RestartRace;
+            Controls.Add(btnRestart);
         }
 
         private void MakeCarFaster(object sender, EventArgs e)
@@ -150,6 +159,16 @@ namespace ParallelProgrammingProject
                 })
                 { IsBackground = true }.Start();
             }
+        }
+
+        private void RestartRace(object sender, EventArgs e)
+        {
+            race.ResetRace();
+
+            RaceForm raceForm = new(race);
+            raceForm.Show();
+
+            this.Hide();
         }
     }
 }

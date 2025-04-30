@@ -18,5 +18,16 @@ namespace ParallelProgrammingProject
         {
             Racers[Racers.Count] = car;
         }
+
+        public void ResetRace()
+        {
+            foreach (var car in Racers.Values)
+            {
+                car.Progress = 0;
+                car.InPitStop = false;
+                car.HorsePower = car.OriginalHorsePower;
+                car.Weight = car.OriginalWeight;
+            }
+        }
     }
 }

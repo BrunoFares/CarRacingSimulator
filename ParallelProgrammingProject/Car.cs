@@ -20,6 +20,8 @@ namespace ParallelProgrammingProject
         public int Year { get; set; }
         public int HorsePower { get; set; }
         public int Weight { get; set; }
+        public int OriginalHorsePower { get; set; }
+        public int OriginalWeight { get; set; }
         public bool InPitStop { get; set; }
         public int Progress 
         {
@@ -54,6 +56,8 @@ namespace ParallelProgrammingProject
             Year = year;
             HorsePower = hp;
             Weight = w;
+            OriginalHorsePower = hp;
+            OriginalWeight = w;
         }
 
         public void RunRace(int raceLength, Action progressUpdate)
