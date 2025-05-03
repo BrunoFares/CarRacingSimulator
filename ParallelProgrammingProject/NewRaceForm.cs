@@ -148,18 +148,33 @@ namespace ParallelProgrammingProject
             ((Button)sender).Enabled = false;
             int raceLength = 100;
 
+            List<Task> raceTasks = new();
+
             foreach (var car in race.Racers.Values)
             {
-                new Thread(() =>
+                var task = Task.Run(() =>
                 {
                     car.RunRace(raceLength, () =>
                     {
                         this.Invoke((MethodInvoker)(() => UpdateCarDisplay(car)));
                     });
-                })
-                { IsBackground = true }.Start();
+
+                    race.AddToLeaderboard(car); // Called after finishing
+                });
+
+                raceTasks.Add(task);
             }
+
+            Task.WhenAll(raceTasks).ContinueWith(_ =>
+            {
+                this.Invoke((MethodInvoker)(() =>
+                {
+                    var leaderboardForm = new LeaderboardForm(race.Leaderboard);
+                    leaderboardForm.ShowDialog();
+                }));
+            });
         }
+
 
         private void RestartRace(object sender, EventArgs e)
         {

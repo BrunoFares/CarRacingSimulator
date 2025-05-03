@@ -6,6 +6,8 @@ namespace ParallelProgrammingProject
     public class Race
     {
         internal Dictionary<int, Car> Racers { get; set; } = new();
+        public List<Car> Leaderboard { get; private set; } = new();
+        private readonly object leaderboardLock = new();
 
         // Default cars with default attributes
         internal Race()
@@ -27,6 +29,17 @@ namespace ParallelProgrammingProject
                 car.InPitStop = false;
                 car.HorsePower = car.OriginalHorsePower;
                 car.Weight = car.OriginalWeight;
+            }
+
+            Leaderboard.Clear();
+        }
+
+        public void AddToLeaderboard(Car car)
+        {
+            lock (leaderboardLock)
+            {
+                if (!Leaderboard.Contains(car))
+                    Leaderboard.Add(car);
             }
         }
     }

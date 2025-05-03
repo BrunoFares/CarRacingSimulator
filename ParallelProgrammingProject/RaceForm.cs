@@ -58,7 +58,7 @@ namespace ParallelProgrammingProject
             AddCar.Click += (sender, EventArgs) => AddNewCar(sender, EventArgs);
             bottomPanel.Controls.Add(AddCar);
 
-            StartRaceBtn = LoadButton("Start Race", new Point(800, 10), new Size(90, 40), true);
+            StartRaceBtn = LoadButton("Start Race", new Point(400, 10), new Size(90, 40), true);
             StartRaceBtn.Click += (sender, EventArgs) => StartRace(sender, EventArgs);
             bottomPanel.Controls.Add(StartRaceBtn);
         }
