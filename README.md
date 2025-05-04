@@ -1,4 +1,4 @@
-# Parallel Programming Project
+# Car Racing Simulator
 
 This is a project by Bruno Fares, Andrea Moubarak and Jason Moussi, which we completed for our university's Parallel Programming class.
 
